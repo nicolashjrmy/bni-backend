@@ -2,6 +2,7 @@ import { Controller, Post, Res, Body, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/loginDto';
 import { Response } from 'express'; // Import the correct Response type
+import { access } from 'fs';
 
 @Controller('auth')
 export class AuthController {
@@ -9,7 +10,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
-    const jwtToken = await this.authService.validateUser(loginDto);
+    const { user, jwtToken } = await this.authService.validateUser(loginDto);
 
     if (!jwtToken) {
       return res
@@ -23,7 +24,13 @@ export class AuthController {
       maxAge: 3600000,
     });
 
-    return res.status(HttpStatus.OK).json({ message: 'Login successful' });
+    return res.status(HttpStatus.OK).json({
+      message: 'Login successful',
+      data: {
+        ...user,
+        access_token: jwtToken,
+      },
+    });
   }
 
   @Post('logout')
