@@ -17,7 +17,7 @@ export class AuthController {
         .json({ message: 'Invalid credentials' });
     }
 
-    res.cookie('jwt', jwtToken, {
+    res.cookie('access_token', jwtToken, {
       httpOnly: true,
       //   secure: process.env.NODE_ENV === 'production',
       maxAge: 3600000,
