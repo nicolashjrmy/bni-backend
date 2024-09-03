@@ -9,7 +9,9 @@ import {
 } from '@nestjs/common';
 import { formatResponse, formatProperties } from 'src/neo4j/neo4j.utils';
 import { Neo4jService } from 'src/neo4j/neo4j.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('tester')
 export class TesterController {
   constructor(private readonly neo4jService: Neo4jService) {}
