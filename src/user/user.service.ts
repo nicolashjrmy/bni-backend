@@ -18,13 +18,14 @@ export class UserService {
 
   async findOne(username: string) {
     const result = await this.neo4jService.read(
-      `MATCH (n:_META_USER {username: $username}) RETURN n.username AS username, n.password AS password, n.role AS role, n.email as email`,
+      `MATCH (n:_META_USER {username: $username}) RETURN n.username AS username, n.password AS password, n.role AS role, n.email as email, id(n) as id`,
       { username },
     );
 
     const record = result.records[0];
     if (record) {
       return {
+        id: record.get('id').low,
         username: record.get('username'),
         password: record.get('password'),
         role: record.get('role'),
