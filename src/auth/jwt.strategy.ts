@@ -5,12 +5,12 @@ import { Request } from 'express';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'access_token') {
   constructor(private readonly userService: UserService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          return request?.cookies?.jwt;
+          return request?.cookies['access_token'];
         },
       ]),
       ignoreExpiration: false,
