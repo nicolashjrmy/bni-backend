@@ -1,7 +1,8 @@
 import { Controller, Post, Res, Body, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/loginDto';
-import { Response } from 'express'; // Import the correct Response type
+import { RegisterDto } from './dto/registerDto';
+import { Response } from 'express';
 import { access } from 'fs';
 
 @Controller('auth')
@@ -35,7 +36,7 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Res() res: Response) {
-    res.clearCookie('jwt', {
+    res.clearCookie('access_token', {
       httpOnly: true,
       //   secure: process.env.NODE_ENV === 'production',
     });
@@ -43,5 +44,19 @@ export class AuthController {
     return res
       .status(HttpStatus.OK)
       .json({ message: 'Logged out successfully' });
+  }
+
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
+    try {
+      const newUser = await this.authService.registerUser(registerDto);
+      return res.status(HttpStatus.CREATED).json({
+        message: 'Registration successful! Please login again',
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: error.message,
+      });
+    }
   }
 }

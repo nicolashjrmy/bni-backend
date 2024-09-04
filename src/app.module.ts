@@ -12,7 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     Neo4jModule.forRoot(
-      'neo4j://192.168.18.16:7687',
+      'neo4j+s://dev.dintegrasi.com',
       'neo4j',
       'Ddi12345!',
       'jamintel1',
@@ -20,8 +20,8 @@ import { JwtModule } from '@nestjs/jwt';
     AuthModule,
     UserModule,
     JwtModule.register({
-      secret: 'testing', // Use a secure secret key in production
-      signOptions: { expiresIn: '1h' }, // Adjust expiration according to your strategy
+      secret: 'testing',
+      signOptions: { expiresIn: '1h' },
     }),
   ],
   controllers: [AppController, GraphController, TesterController],

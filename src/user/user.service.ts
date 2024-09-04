@@ -16,6 +16,21 @@ export class UserService {
     }));
   }
 
+  async findOneEmail(email: string) {
+    const result = await this.neo4jService.read(
+      `MATCH (n:_META_USER {email: $email}) RETURN n.email as email`,
+      { email },
+    );
+    const record = result.records[0];
+    if (record) {
+      return {
+        email: record.get('email'),
+      };
+    }
+
+    return null;
+  }
+
   async findOne(username: string) {
     const result = await this.neo4jService.read(
       `MATCH (n:_META_USER {username: $username}) RETURN n.username AS username, n.password AS password, n.role AS role, n.email as email, id(n) as id`,
@@ -34,6 +49,20 @@ export class UserService {
     }
 
     return null;
+  }
+
+  async registerUser(username: string, email: string, password: string) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await this.neo4jService.read(
+      ` CREATE (user:_META_USER{username: $username, email: $email})
+          SET 
+              user.username = $username,
+              user.email = $email,
+              user.password = $hashedPassword,
+              user.role = "admin" `,
+      { username, email, hashedPassword },
+    );
+    return newUser;
   }
 
   async validateUser(username: string, password: string): Promise<any> {

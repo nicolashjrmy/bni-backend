@@ -1,7 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { LoginDto } from './dto/loginDto';
+import { RegisterDto } from './dto/registerDto';
+import { Neo4jService } from 'src/neo4j/neo4j.service';
 
 @Injectable()
 export class AuthService {
@@ -24,5 +31,31 @@ export class AuthService {
     const jwtToken = this.jwtService.sign(payload);
 
     return { user, jwtToken };
+  }
+
+  async registerUser(registerDto: RegisterDto): Promise<{ newUser: any }> {
+    const { username, email, password, confirm_password } = registerDto;
+
+    
+    const existingUser = await this.userService.findOne(username);
+    if (existingUser) {
+        throw new ConflictException('Username already exist!');
+    }
+    
+    const existingEmail = await this.userService.findOneEmail(email);
+    if (existingEmail) {
+        throw new ConflictException('Email already used!');
+    }
+    
+    if (password !== confirm_password) {
+      throw new BadRequestException('Passwords do not match!');
+    }
+    const newUser = await this.userService.registerUser(
+      username,
+      email,
+      password,
+    );
+
+    return null;
   }
 }
